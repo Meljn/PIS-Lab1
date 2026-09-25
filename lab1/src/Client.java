@@ -1,4 +1,7 @@
 public class Client {
+
+    private static final String name_pattern = "\\p{L}[\\p{L}\\p{M}]*([ '\\-’]\\p{L}[\\p{L}\\p{M}]*)*";
+
     private long clientId;
     private String lastName;
     private String firstName;
@@ -8,16 +11,8 @@ public class Client {
     private String city;
     private String address;
 
-    public Client(
-            long clientId,
-            String lastName,
-            String firstName,
-            String middleName,
-            String phone,
-            String country,
-            String city,
-            String address
-    ) {
+    public Client(long clientId, String lastName, String firstName, String middleName,
+                  String phone, String country, String city, String address) {
         validateClientId(clientId);
         validateLastName(lastName);
         validateFirstName(firstName);
@@ -109,75 +104,55 @@ public class Client {
     }
 
     public static void validateLastName(String lastName) {
-        if (lastName == null || lastName.isBlank()) {
-            throw new IllegalArgumentException("Фамилия обязательна.");
-        }
-        if (lastName.codePointCount(0, lastName.length()) > 100) {
-            throw new IllegalArgumentException("Фамилия не должна превышать 100 символов.");
-        }
-        if (!lastName.matches("\\p{L}[\\p{L}\\p{M}]*(?:[ '\\-’]\\p{L}[\\p{L}\\p{M}]*)*")) {
-            throw new IllegalArgumentException("Фамилия может содержать буквы, пробелы, дефисы и апострофы между частями.");
-        }
+        validateName(lastName, "Фамилия");
     }
 
     public static void validateFirstName(String firstName) {
-        if (firstName == null || firstName.isBlank()) {
-            throw new IllegalArgumentException("Имя обязательно.");
-        }
-        if (firstName.codePointCount(0, firstName.length()) > 100) {
-            throw new IllegalArgumentException("Имя не должно превышать 100 символов.");
-        }
-        if (!firstName.matches("\\p{L}[\\p{L}\\p{M}]*(?:[ '\\-’]\\p{L}[\\p{L}\\p{M}]*)*")) {
-            throw new IllegalArgumentException("Имя может содержать буквы, пробелы, дефисы и апострофы между частями.");
-        }
+        validateName(firstName, "Имя");
     }
 
     public static void validateMiddleName(String middleName) {
-        if (middleName == null) {
-            return;
-        }
-        if (middleName.isBlank()) {
-            throw new IllegalArgumentException("Для отсутствующего отчества передайте null, а не пустую строку.");
-        }
-        if (middleName.codePointCount(0, middleName.length()) > 100) {
-            throw new IllegalArgumentException("Отчество не должно превышать 100 символов.");
-        }
-        if (!middleName.matches("\\p{L}[\\p{L}\\p{M}]*(?:[ '\\-’]\\p{L}[\\p{L}\\p{M}]*)*")) {
-            throw new IllegalArgumentException("Отчество может содержать буквы, пробелы, дефисы и апострофы между частями.");
+        if (middleName != null) {
+            validateName(middleName, "Отчество");
         }
     }
 
     public static void validatePhone(String phone) {
         if (phone == null || !phone.matches("\\+[1-9][0-9]{6,14}")) {
-            throw new IllegalArgumentException("Телефон должен начинаться с + и содержать от 7 до 15 цифр, первая цифра — от 1 до 9.");
+            throw new IllegalArgumentException("Телефон должен начинаться с + и содержать от 7 до 15 цифр. Первая цифра не должна быть нулём.");
         }
     }
 
     public static void validateCountry(String country) {
-        if (country == null || country.isBlank()) {
-            throw new IllegalArgumentException("Страна обязательна.");
-        }
-        if (country.codePointCount(0, country.length()) > 100) {
-            throw new IllegalArgumentException("Страна не должна превышать 100 символов.");
-        }
+        validateText(country, "Страна", 100);
     }
 
     public static void validateCity(String city) {
-        if (city == null || city.isBlank()) {
-            throw new IllegalArgumentException("Населённый пункт обязателен.");
-        }
-        if (city.codePointCount(0, city.length()) > 100) {
-            throw new IllegalArgumentException("Название населённого пункта не должно превышать 100 символов.");
-        }
+        validateText(city, "Город", 100);
     }
 
     public static void validateAddress(String address) {
-        if (address == null || address.isBlank()) {
-            throw new IllegalArgumentException("Адрес обязателен.");
+        validateText(address, "Адрес", 250);
+    }
+
+    private static void validateText(String value, String fieldName, int maxLength) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Поле \"" + fieldName + "\" не заполнено.");
         }
-        if (address.codePointCount(0, address.length()) > 250) {
-            throw new IllegalArgumentException("Адрес не должен превышать 250 символов.");
+
+        if (value.codePointCount(0, value.length()) > maxLength) {
+            throw new IllegalArgumentException("Поле \"" + fieldName
+                    + "\" не должно быть длиннее " + maxLength + " символов.");
         }
     }
 
+    private static void validateName(String value, String fieldName) {
+        validateText(value, fieldName, 100);
+
+        if (!value.matches(name_pattern)) {
+            throw new IllegalArgumentException("В поле \"" + fieldName
+                    + "\" допустимы буквы, а между частями — пробел, дефис или апостроф.");
+        }
+    }
 }
+
