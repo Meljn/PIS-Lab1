@@ -65,5 +65,10 @@ public class Main {
 
         sameClient.setPhone("+79990000000");
         System.out.println("Равенство после изменения телефона: " + client.equals(sameClient));
+
+        ClientShort shortClient = new ClientShort(client);
+        System.out.println("\nОбъект ClientShort:");
+        System.out.println(shortClient);
+
     }
 }
