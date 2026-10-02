@@ -1,5 +1,7 @@
+import java.util.Objects;
+
 public class Client {
-    // Части имени разделяются пробелом, дефисом или апострофом.
+
     private static final String NAME_PATTERN =
             "\\p{L}[\\p{L}\\p{M}]*([ '\\-’]\\p{L}[\\p{L}\\p{M}]*)*";
 
@@ -33,6 +35,7 @@ public class Client {
         this.address = address;
     }
 
+
     public Client(String data) {
         this(splitClientData(data));
     }
@@ -55,6 +58,7 @@ public class Client {
             throw new IllegalArgumentException("Строка с данными клиента не должна быть null.");
         }
 
+        // -1 сохраняет пустое последнее поле, чтобы проверить отсутствие адреса.
         String[] parts = data.split(";", -1);
         if (parts.length != 8) {
             throw new IllegalArgumentException("В строке должно быть 8 полей, разделённых точкой с запятой.");
@@ -136,6 +140,49 @@ public class Client {
         this.address = address;
     }
 
+
+    @Override
+    public String toString() {
+        return "ID: " + clientId
+                + "\nФамилия: " + lastName
+                + "\nИмя: " + firstName
+                + "\nОтчество: " + (middleName == null ? "не указано" : middleName)
+                + "\nТелефон: " + phone
+                + "\nСтрана: " + country
+                + "\nГород: " + city
+                + "\nАдрес: " + address;
+    }
+
+    public String toShortString() {
+        return lastName + " " + firstName + ", телефон: " + phone;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        Client other = (Client) obj;
+        return clientId == other.clientId
+                && lastName.equals(other.lastName)
+                && firstName.equals(other.firstName)
+                && Objects.equals(middleName, other.middleName)
+                && phone.equals(other.phone)
+                && country.equals(other.country)
+                && city.equals(other.city)
+                && address.equals(other.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(clientId, lastName, firstName, middleName,
+                phone, country, city, address);
+    }
+
     public static void validateClientId(long clientId) {
         if (clientId <= 0) {
             throw new IllegalArgumentException("Идентификатор клиента должен быть положительным.");
@@ -180,6 +227,7 @@ public class Client {
             throw new IllegalArgumentException("Поле \"" + fieldName + "\" не заполнено.");
         }
 
+        // Учитываем символы Unicode при подсчёте длины.
         if (value.codePointCount(0, value.length()) > maxLength) {
             throw new IllegalArgumentException("Поле \"" + fieldName
                     + "\" не должно быть длиннее " + maxLength + " символов.");
@@ -195,4 +243,3 @@ public class Client {
         }
     }
 }
-
