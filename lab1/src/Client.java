@@ -1,6 +1,7 @@
 public class Client {
-
-    private static final String name_pattern = "\\p{L}[\\p{L}\\p{M}]*([ '\\-’]\\p{L}[\\p{L}\\p{M}]*)*";
+    // Части имени разделяются пробелом, дефисом или апострофом.
+    private static final String NAME_PATTERN =
+            "\\p{L}[\\p{L}\\p{M}]*([ '\\-’]\\p{L}[\\p{L}\\p{M}]*)*";
 
     private long clientId;
     private String lastName;
@@ -31,6 +32,44 @@ public class Client {
         this.city = city;
         this.address = address;
     }
+
+    public Client(String data) {
+        this(splitClientData(data));
+    }
+
+    private Client(String[] parts) {
+        this(
+                parseClientId(parts[0]),
+                parts[1],
+                parts[2],
+                parts[3].isEmpty() ? null : parts[3],
+                parts[4],
+                parts[5],
+                parts[6],
+                parts[7]
+        );
+    }
+
+    private static String[] splitClientData(String data) {
+        if (data == null) {
+            throw new IllegalArgumentException("Строка с данными клиента не должна быть null.");
+        }
+
+        String[] parts = data.split(";", -1);
+        if (parts.length != 8) {
+            throw new IllegalArgumentException("В строке должно быть 8 полей, разделённых точкой с запятой.");
+        }
+        return parts;
+    }
+
+    private static long parseClientId(String value) {
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("ID в строке должен быть целым числом в диапазоне long.", e);
+        }
+    }
+
 
     public long getClientId() {
         return clientId;
@@ -98,7 +137,7 @@ public class Client {
     }
 
     public static void validateClientId(long clientId) {
-        if (clientId < 0) {
+        if (clientId <= 0) {
             throw new IllegalArgumentException("Идентификатор клиента должен быть положительным.");
         }
     }
@@ -112,6 +151,7 @@ public class Client {
     }
 
     public static void validateMiddleName(String middleName) {
+        // Отчества может не быть.
         if (middleName != null) {
             validateName(middleName, "Отчество");
         }
@@ -149,7 +189,7 @@ public class Client {
     private static void validateName(String value, String fieldName) {
         validateText(value, fieldName, 100);
 
-        if (!value.matches(name_pattern)) {
+        if (!value.matches(NAME_PATTERN)) {
             throw new IllegalArgumentException("В поле \"" + fieldName
                     + "\" допустимы буквы, а между частями — пробел, дефис или апостроф.");
         }
