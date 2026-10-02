@@ -1,7 +1,6 @@
 import java.util.Objects;
 
 public class Client {
-
     private static final String NAME_PATTERN =
             "\\p{L}[\\p{L}\\p{M}]*([ '\\-’]\\p{L}[\\p{L}\\p{M}]*)*";
 
@@ -20,7 +19,7 @@ public class Client {
         validateLastName(lastName);
         validateFirstName(firstName);
         validateMiddleName(middleName);
-        validatePhone(phone);
+        String normalizedPhone = normalizePhone(phone);
         validateCountry(country);
         validateCity(city);
         validateAddress(address);
@@ -29,7 +28,7 @@ public class Client {
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
-        this.phone = phone;
+        this.phone = normalizedPhone;
         this.country = country;
         this.city = city;
         this.address = address;
@@ -58,7 +57,6 @@ public class Client {
             throw new IllegalArgumentException("Строка с данными клиента не должна быть null.");
         }
 
-        // -1 сохраняет пустое последнее поле, чтобы проверить отсутствие адреса.
         String[] parts = data.split(";", -1);
         if (parts.length != 8) {
             throw new IllegalArgumentException("В строке должно быть 8 полей, разделённых точкой с запятой.");
@@ -111,8 +109,7 @@ public class Client {
         return phone;
     }
     public void setPhone(String phone) {
-        validatePhone(phone);
-        this.phone = phone;
+        this.phone = normalizePhone(phone);
     }
 
     public String getCountry() {
@@ -139,7 +136,6 @@ public class Client {
         validateAddress(address);
         this.address = address;
     }
-
 
     @Override
     public String toString() {
@@ -198,16 +194,13 @@ public class Client {
     }
 
     public static void validateMiddleName(String middleName) {
-        // Отчества может не быть.
         if (middleName != null) {
             validateName(middleName, "Отчество");
         }
     }
 
     public static void validatePhone(String phone) {
-        if (phone == null || !phone.matches("\\+[1-9][0-9]{6,14}")) {
-            throw new IllegalArgumentException("Телефон должен начинаться с + и содержать от 7 до 15 цифр. Первая цифра не должна быть нулём.");
-        }
+        normalizePhone(phone);
     }
 
     public static void validateCountry(String country) {
@@ -220,6 +213,23 @@ public class Client {
 
     public static void validateAddress(String address) {
         validateText(address, "Адрес", 250);
+    }
+
+    private static String normalizePhone(String phone) {
+        if (phone == null) {
+            throw new IllegalArgumentException("Телефон не должен быть null.");
+        }
+
+        String normalized = phone.replaceAll("[\\s()\\-]", "");
+
+        if (normalized.matches("[78][0-9]{10}")) {
+            normalized = "+7" + normalized.substring(1);
+        }
+
+        if (!normalized.matches("\\+[1-9][0-9]{6,14}")) {
+            throw new IllegalArgumentException("Телефон должен содержать + и от 7 до 15 цифр, первая цифра не должна быть нулём. Допустимы пробелы, скобки и дефисы.");
+        }
+        return normalized;
     }
 
     private static void validateText(String value, String fieldName, int maxLength) {
@@ -242,3 +252,4 @@ public class Client {
         }
     }
 }
+

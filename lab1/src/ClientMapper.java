@@ -13,7 +13,6 @@ public class ClientMapper {
     }
 
     private static String getInitial(String name) {
-        // Находим конец первой буквы с учётом Unicode.
         int end = name.offsetByCodePoints(0, 1);
         return name.substring(0, end) + ".";
     }

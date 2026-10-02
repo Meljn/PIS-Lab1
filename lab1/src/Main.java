@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
         Client client = new Client(
@@ -51,6 +54,10 @@ public class Main {
         System.out.println("\nКраткая версия клиента:");
         System.out.println(client.toShortString());
 
+        System.out.println("\nКлиент без отчества:");
+        System.out.println(clientFromString);
+        System.out.println(clientFromString.toShortString());
+
         Client sameClient = new Client(
                 "1;Иванов;Андрей;Иванович;+79991234567;Россия;Москва;ул. Пушкина, д. 10, кв. 5"
         );
@@ -63,7 +70,40 @@ public class Main {
         System.out.println("Равенство после изменения телефона: " + client.equals(sameClient));
 
         ClientShort shortClient = ClientMapper.toShort(client);
-        System.out.println("\nОбъект ClientShort:");
+        System.out.println("\nОбъект ClientShort через маппер:");
         System.out.println(shortClient);
+
+        ClientShort shortClientWithoutMiddleName = ClientMapper.toShort(clientFromString);
+        System.out.println("\nОбъект ClientShort без отчества через маппер:");
+        System.out.println(shortClientWithoutMiddleName);
+
+        System.out.println("\nСоздание нескольких клиентов:");
+        String[] clientData = {
+                "3;Сидоров;Сергей;Сергеевич;+7 999 1111111;Россия;Москва;ул. Лесная, д. 1",
+                "4;Смирнов;Алексей;Иванович;7 (999)-222-22-22;Россия;Омск;ул. Мира, д. 2",
+                "5;Кузнецова;Анна;;+79фыв93333333;Россия;Казань;ул. Баумана, д. 3",
+                "7;Орлов;Дмитрий;Андреевич;+79995555555;Россия;Тула;ул. Советская, д. 5"
+        };
+
+        List<Client> clients = new ArrayList<>();
+        int skippedClients = 0;
+
+        for (int i = 0; i < clientData.length; i++) {
+            try {
+                Client newClient = new Client(clientData[i]);
+                clients.add(newClient);
+            } catch (IllegalArgumentException e) {
+                skippedClients++;
+                System.out.println("Запись №" + (i + 1) + " пропущена: " + e.getMessage());
+            }
+        }
+
+        System.out.println("Успешно создано: " + clients.size());
+        System.out.println("Пропущено: " + skippedClients);
+
+        System.out.println("\nСозданные клиенты:");
+        for (Client createdClient : clients) {
+            System.out.println(ClientMapper.toShort(createdClient));
+        }
     }
 }
