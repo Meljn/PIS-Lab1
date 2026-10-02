@@ -227,7 +227,6 @@ public class Client {
             throw new IllegalArgumentException("Поле \"" + fieldName + "\" не заполнено.");
         }
 
-        // Учитываем символы Unicode при подсчёте длины.
         if (value.codePointCount(0, value.length()) > maxLength) {
             throw new IllegalArgumentException("Поле \"" + fieldName
                     + "\" не должно быть длиннее " + maxLength + " символов.");

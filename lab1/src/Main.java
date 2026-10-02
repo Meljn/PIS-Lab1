@@ -51,10 +51,6 @@ public class Main {
         System.out.println("\nКраткая версия клиента:");
         System.out.println(client.toShortString());
 
-        System.out.println("\nКлиент без отчества:");
-        System.out.println(clientFromString);
-        System.out.println(clientFromString.toShortString());
-
         Client sameClient = new Client(
                 "1;Иванов;Андрей;Иванович;+79991234567;Россия;Москва;ул. Пушкина, д. 10, кв. 5"
         );
@@ -66,9 +62,8 @@ public class Main {
         sameClient.setPhone("+79990000000");
         System.out.println("Равенство после изменения телефона: " + client.equals(sameClient));
 
-        ClientShort shortClient = new ClientShort(client);
+        ClientShort shortClient = ClientMapper.toShort(client);
         System.out.println("\nОбъект ClientShort:");
         System.out.println(shortClient);
-
     }
 }
